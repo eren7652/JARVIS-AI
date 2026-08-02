@@ -42,39 +42,57 @@ export default function LandingLogin({ onLogin }) {
   }, []);
 
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || !window.google || view !== 'select') return;
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: async (response) => {
-        setError('');
-        setBusy(true);
-        try {
-          const data = await apiFetch('/api/auth/google', {
-            method: 'POST',
-            body: JSON.stringify({ credential: response.credential }),
-          });
-          setToken(data.token);
-          onLogin(data.user);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setBusy(false);
-        }
-      },
-    });
+  if (!clientId || !window.google || view !== "select") return;
 
-    if (googleBtnRef.current) {
-      window.google.accounts.id.renderButton(googleBtnRef.current, {
-        theme: 'filled_black',
-        size: 'large',
-        shape: 'pill',
-        width: 280,
-      });
-      setGoogleReady(true);
+  // Prevent rendering the button multiple times
+  if (googleBtnRef.current) {
+    googleBtnRef.current.innerHTML = "";
+  }
+
+  window.google.accounts.id.initialize({
+    client_id: clientId,
+    callback: async (response) => {
+      setError("");
+      setBusy(true);
+
+      try {
+        const data = await apiFetch("/api/auth/google", {
+          method: "POST",
+          body: JSON.stringify({
+            credential: response.credential,
+          }),
+        });
+
+        setToken(data.token);
+        onLogin(data.user);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setBusy(false);
+      }
+    },
+  });
+
+  window.google.accounts.id.renderButton(
+    googleBtnRef.current,
+    {
+      theme: "filled_black",
+      size: "large",
+      shape: "pill",
+      width: 280,
     }
-  }, [onLogin, view]);
+  );
+
+  setGoogleReady(true);
+
+  return () => {
+    if (googleBtnRef.current) {
+      googleBtnRef.current.innerHTML = "";
+    }
+  };
+}, [view]);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
