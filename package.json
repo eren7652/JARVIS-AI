@@ -1,4 +1,4 @@
-{
+git{ 
   "name": "jarvis-ai",
   "version": "3.1.0",
   "description": "JARVIS-style AI assistant with a React frontend, MongoDB-backed accounts, and Google Gemini for the AI",
