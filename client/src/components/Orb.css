@@ -1,0 +1,71 @@
+.orb {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.orb .ring {
+  fill: none;
+  stroke: var(--cyan-dim);
+  stroke-width: 1.5;
+  opacity: 0.6;
+  transform-origin: 100px 100px;
+}
+.orb .ring-1 { stroke-dasharray: 3 8; animation: orb-spin 14s linear infinite; }
+.orb .ring-2 { stroke: var(--cyan); stroke-dasharray: 2 5; opacity: 0.45; animation: orb-spin-rev 9s linear infinite; }
+.orb .ring-3 { stroke-dasharray: 20 5; opacity: 0.35; animation: orb-spin 20s linear infinite; }
+
+.orb g line { stroke: var(--cyan); stroke-width: 2; }
+
+.orb-glow {
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(111,227,255,0.95) 0%, rgba(111,227,255,0.3) 45%, transparent 75%);
+  filter: blur(1.5px);
+  animation: orb-pulse-idle 3s ease-in-out infinite;
+}
+
+@keyframes orb-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes orb-spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes orb-pulse-idle {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+@keyframes orb-pulse-fast {
+  0%, 100% { transform: scale(0.92); opacity: 0.85; }
+  50% { transform: scale(1.18); opacity: 1; }
+}
+
+.orb-listening .ring { stroke: var(--amber); }
+.orb-listening .orb-glow {
+  background: radial-gradient(circle, rgba(255,180,84,0.95) 0%, rgba(255,180,84,0.3) 45%, transparent 75%);
+  animation: orb-pulse-fast 0.85s ease-in-out infinite;
+}
+.orb-listening g line { stroke: var(--amber); }
+
+.orb-speaking .orb-glow { animation: orb-pulse-fast 0.5s ease-in-out infinite; }
+
+.orb-thinking .ring-1 { animation-duration: 3s; }
+.orb-thinking .ring-2 { animation-duration: 2s; }
+.orb-thinking .orb-glow { animation: orb-pulse-fast 1.1s ease-in-out infinite; }
+
+.orb-error .ring { stroke: var(--danger); }
+.orb-error .orb-glow {
+  background: radial-gradient(circle, rgba(255,107,107,0.95) 0%, rgba(255,107,107,0.3) 45%, transparent 75%);
+}
+.orb-error g line { stroke: var(--danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb .ring, .orb-glow { animation: none !important; }
+}

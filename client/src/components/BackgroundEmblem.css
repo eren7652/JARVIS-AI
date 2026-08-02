@@ -1,0 +1,70 @@
+.bg-emblem {
+  position: fixed;
+  top: 50%;
+  right: -14%;
+  transform: translateY(-50%);
+  width: min(85vh, 850px);
+  height: min(85vh, 850px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+  mix-blend-mode: screen;
+}
+
+.bg-emblem-svg { width: 100%; height: 100%; overflow: visible; }
+
+.e-halo {
+  animation: emblem-drift 14s ease-in-out infinite;
+  transform-origin: 400px 400px;
+}
+
+.e-glow {
+  animation: emblem-breathe 6s ease-in-out infinite;
+  transform-origin: 400px 400px;
+}
+
+.e-ring {
+  fill: none;
+  stroke: var(--cyan-dim);
+  stroke-width: 1;
+  opacity: 0.18;
+  transform-origin: 400px 400px;
+}
+.e-ring-1 { stroke-dasharray: 2 14; animation: emblem-spin 90s linear infinite; }
+.e-ring-2 { stroke-dasharray: 6 10; opacity: 0.13; animation: emblem-spin-rev 70s linear infinite; }
+.e-ring-3 { stroke-dasharray: 40 8; opacity: 0.11; animation: emblem-spin 50s linear infinite; }
+.e-ring-4 { stroke: var(--amber); stroke-dasharray: 3 6; opacity: 0.08; animation: emblem-spin-rev 38s linear infinite; }
+
+.e-ticks line {
+  stroke: var(--cyan);
+  stroke-width: 1.5;
+  opacity: 0.16;
+}
+
+.e-tri {
+  fill: none;
+  stroke: var(--cyan);
+  stroke-width: 1.2;
+  transform-origin: 400px 400px;
+}
+.e-tri-outer { opacity: 0.18; animation: emblem-breathe 6s ease-in-out infinite reverse; }
+.e-tri-inner { opacity: 0.1; stroke: var(--amber); animation: emblem-breathe 8s ease-in-out infinite; }
+
+@keyframes emblem-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes emblem-spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes emblem-breathe {
+  0%, 100% { opacity: 0.7; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes emblem-drift {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
+@media (max-width: 900px) {
+  .bg-emblem { right: -34%; opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .e-glow, .e-ring, .e-tri, .e-halo { animation: none !important; }
+}
