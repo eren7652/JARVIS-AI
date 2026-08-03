@@ -161,15 +161,11 @@ Database
 
 # 📸 Screenshots
 
-> Add your screenshots here.
+Login Screen <img width="1920" height="1080" alt="Screenshot (69)" src="https://github.com/user-attachments/assets/7bc84ae5-a436-4625-af3d-386ae653cd04" />
+Chat Interface <img width="1920" height="1080" alt="Screenshot (68)" src="https://github.com/user-attachments/assets/c0816fae-cc33-4fdd-ada9-58b72deeab19" />
 
-```
-Home Screen
-Chat Interface
-Login Screen
-```
 
----
+
 
 # 🎯 Future Improvements
 
