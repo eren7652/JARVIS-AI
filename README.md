@@ -6,10 +6,6 @@
 
 An advanced AI assistant inspired by Iron Man's JARVIS, built using the MERN stack, Google Authentication, and Google's Gemini AI.
 
-![GitHub stars](https://img.shields.io/github/stars/eren7652/JARVIS-AI?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/eren7652/JARVIS-AI?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/eren7652/JARVIS-AI?style=for-the-badge)
-
 LIVE DEMO-https://jarvis-ai-one-flax.vercel.app/
 
 </div>
