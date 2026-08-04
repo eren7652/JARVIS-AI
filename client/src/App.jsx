@@ -15,6 +15,7 @@ const LANG_KEY = 'jarvis-language';
 const USER_KEY = 'jarvis-user';
 const THEME_KEY = 'jarvis-theme';
 const VOICE_MUTED_KEY = 'jarvis-voice-muted';
+const WAKE_WORD_KEY = 'jarvis-wake-word-enabled';
 const MAX_SPOKEN_WORDS = 25;
 
 function timeLabel() {
@@ -83,6 +84,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'dark');
   const [language, setLanguage] = useState(() => localStorage.getItem(LANG_KEY) || 'en');
   const [voiceMuted, setVoiceMuted] = useState(() => localStorage.getItem(VOICE_MUTED_KEY) === 'true');
+  const [wakeWordEnabled, setWakeWordEnabled] = useState(() => localStorage.getItem(WAKE_WORD_KEY) === 'true');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [conversations, setConversations] = useState([]);
@@ -100,7 +102,9 @@ export default function App() {
   const recognitionRef = useRef(null);
   const [micSupported, setMicSupported] = useState(false);
   const [micActive, setMicActive] = useState(false);
-
+  const wakeRecognitionRef = useRef(null);
+  const awaitingCommandRef = useRef(false);
+  const awaitingTimeoutRef = useRef(null);
   const activeConversation = useMemo(
     () => conversations.find((c) => c.id === activeId),
     [conversations, activeId]
@@ -127,6 +131,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(VOICE_MUTED_KEY, String(voiceMuted));
   }, [voiceMuted]);
+
+  useEffect(() => {
+    localStorage.setItem(WAKE_WORD_KEY, String(wakeWordEnabled));
+  }, [wakeWordEnabled]);
 
   // load conversations from the server once logged in
   useEffect(() => {
@@ -268,6 +276,77 @@ export default function App() {
     setMicSupported(true);
   }, [sendMessage, language, activeId]);
 
+  // "Hey JARVIS" wake-word listening — runs continuously in the background
+  // when enabled, paused while the manual mic button is in use or while
+  // JARVIS is talking (so it doesn't hear itself).
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition || !wakeWordEnabled || micActive || coreState === 'speaking') {
+      wakeRecognitionRef.current?.stop();
+      wakeRecognitionRef.current = null;
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = LANGUAGES.find((l) => l.code === language)?.speech || 'en-US';
+
+    const wakeRegex = /\bjarvis[,!.]?\s*(.*)/i;
+
+    recognition.onresult = (event) => {
+      const result = event.results[event.results.length - 1];
+      if (!result.isFinal) return;
+      const transcript = result[0].transcript.trim();
+      if (!transcript) return;
+
+      const match = transcript.match(wakeRegex);
+      if (match) {
+        clearTimeout(awaitingTimeoutRef.current);
+        const command = match[1].trim();
+        if (command) {
+          awaitingCommandRef.current = false;
+          sendMessage(command);
+        } else {
+          // just the wake word alone — listen for the actual command next
+          awaitingCommandRef.current = true;
+          setCoreState('listening');
+          awaitingTimeoutRef.current = setTimeout(() => {
+            awaitingCommandRef.current = false;
+            setCoreState((s) => (s === 'listening' ? 'idle' : s));
+          }, 6000);
+        }
+      } else if (awaitingCommandRef.current) {
+        clearTimeout(awaitingTimeoutRef.current);
+        awaitingCommandRef.current = false;
+        sendMessage(transcript);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      // "no-speech" fires constantly in continuous mode — expected, ignore it.
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        setWakeWordEnabled(false);
+      }
+    };
+
+    recognition.onend = () => {
+      // Chrome auto-stops continuous recognition after a while; restart it
+      // as long as wake-word mode is still meant to be active.
+      if (wakeWordEnabled && !micActive && coreState !== 'speaking') {
+        try { recognition.start(); } catch { /* already running */ }
+      }
+    };
+
+    wakeRecognitionRef.current = recognition;
+    try { recognition.start(); } catch { /* ignore */ }
+
+    return () => {
+      recognition.onend = null;
+      recognition.stop();
+    };
+  }, [wakeWordEnabled, micActive, coreState, language, sendMessage]);
+
   const handleMicClick = () => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
@@ -379,7 +458,8 @@ export default function App() {
     coreState === 'listening' ? 'statusListening' :
     coreState === 'thinking' ? 'statusThinking' :
     coreState === 'speaking' ? 'statusSpeaking' :
-    coreState === 'error' ? 'statusError' : 'statusNominal';
+    coreState === 'error' ? 'statusError' :
+    wakeWordEnabled ? 'statusWakeReady' : 'statusNominal';
 
   return (
     <div className="app-root">
@@ -436,6 +516,9 @@ export default function App() {
           onLanguageChange={setLanguage}
           voiceMuted={voiceMuted}
           onToggleMute={handleToggleMute}
+          wakeWordEnabled={wakeWordEnabled}
+          onToggleWakeWord={() => setWakeWordEnabled((v) => !v)}
+          micSupported={micSupported}
           onClose={() => setSettingsOpen(false)}
           onLogout={handleLogout}
           onUserUpdate={handleUserUpdate}

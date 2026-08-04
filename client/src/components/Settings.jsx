@@ -7,7 +7,7 @@ const APP_VERSION = '3.1.0';
 
 export default function Settings({
   user, theme, onThemeChange, language, onLanguageChange, voiceMuted, onToggleMute,
-  onClose, onLogout, onUserUpdate,
+  wakeWordEnabled, onToggleWakeWord, micSupported, onClose, onLogout, onUserUpdate,
 }) {
   const [tab, setTab] = useState('profile');
   const [imgError, setImgError] = useState(false);
@@ -203,6 +203,28 @@ export default function Settings({
                 <p className="settings-hint">
                   JARVIS reads short replies aloud (greetings, quick answers). Longer
                   paragraphs are shown in the chat but not read out.
+                </p>
+
+                <label className="settings-label">Wake word</label>
+                <div className="settings-theme-toggle">
+                  <button
+                    className={wakeWordEnabled ? 'active' : ''}
+                    onClick={() => !wakeWordEnabled && onToggleWakeWord()}
+                    disabled={!micSupported}
+                  >
+                    On
+                  </button>
+                  <button
+                    className={!wakeWordEnabled ? 'active' : ''}
+                    onClick={() => wakeWordEnabled && onToggleWakeWord()}
+                  >
+                    Off
+                  </button>
+                </div>
+                <p className="settings-hint">
+                  {micSupported
+                    ? 'When on, JARVIS listens in the background — just say "Jarvis" followed by what you need, no need to tap the mic.'
+                    : 'Voice input isn\'t supported in this browser.'}
                 </p>
               </div>
             )}
