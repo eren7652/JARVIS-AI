@@ -6,7 +6,8 @@ import './Settings.css';
 const APP_VERSION = '3.1.0';
 
 export default function Settings({
-  user, theme, onThemeChange, language, onLanguageChange, onClose, onLogout, onUserUpdate,
+  user, theme, onThemeChange, language, onLanguageChange, voiceMuted, onToggleMute,
+  onClose, onLogout, onUserUpdate,
 }) {
   const [tab, setTab] = useState('profile');
   const [imgError, setImgError] = useState(false);
@@ -183,6 +184,26 @@ export default function Settings({
                     <option key={l.code} value={l.code}>{l.label}</option>
                   ))}
                 </select>
+
+                <label className="settings-label">Voice</label>
+                <div className="settings-theme-toggle">
+                  <button
+                    className={!voiceMuted ? 'active' : ''}
+                    onClick={() => voiceMuted && onToggleMute()}
+                  >
+                    Voice on
+                  </button>
+                  <button
+                    className={voiceMuted ? 'active' : ''}
+                    onClick={() => !voiceMuted && onToggleMute()}
+                  >
+                    Muted
+                  </button>
+                </div>
+                <p className="settings-hint">
+                  JARVIS reads short replies aloud (greetings, quick answers). Longer
+                  paragraphs are shown in the chat but not read out.
+                </p>
               </div>
             )}
 

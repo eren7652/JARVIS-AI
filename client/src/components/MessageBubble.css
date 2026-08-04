@@ -46,7 +46,7 @@
 .msg-error {
   background: rgba(255,107,107,0.08);
   border-color: rgba(255,107,107,0.3);
-  color: #ffb3b3;
+  color: var(--danger);
 }
 .msg-error::before { background: linear-gradient(180deg, var(--danger), transparent) !important; }
 

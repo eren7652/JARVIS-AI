@@ -14,6 +14,8 @@ import './App.css';
 const LANG_KEY = 'jarvis-language';
 const USER_KEY = 'jarvis-user';
 const THEME_KEY = 'jarvis-theme';
+const VOICE_MUTED_KEY = 'jarvis-voice-muted';
+const MAX_SPOKEN_WORDS = 25;
 
 function timeLabel() {
   return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -80,6 +82,7 @@ export default function App() {
 
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'dark');
   const [language, setLanguage] = useState(() => localStorage.getItem(LANG_KEY) || 'en');
+  const [voiceMuted, setVoiceMuted] = useState(() => localStorage.getItem(VOICE_MUTED_KEY) === 'true');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [conversations, setConversations] = useState([]);
@@ -117,7 +120,13 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem(LANG_KEY, language);
+    // stop any in-progress speech in the old language rather than let it finish
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(VOICE_MUTED_KEY, String(voiceMuted));
+  }, [voiceMuted]);
 
   // load conversations from the server once logged in
   useEffect(() => {
@@ -149,10 +158,20 @@ export default function App() {
   }, [user]);
 
   const speak = useCallback((text) => {
-    if (!('speechSynthesis' in window)) {
+    if (voiceMuted || !('speechSynthesis' in window)) {
       setCoreState('idle');
       return;
     }
+
+    // Keep spoken replies short — greetings and brief answers get read aloud,
+    // long paragraphs (search results, explanations) are shown in the chat
+    // but not read out in full.
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    if (wordCount > MAX_SPOKEN_WORDS) {
+      setCoreState('idle');
+      return;
+    }
+
     const speechLang = LANGUAGES.find((l) => l.code === language)?.speech || 'en-US';
     const utter = new SpeechSynthesisUtterance(text);
     utter.rate = 1.02;
@@ -167,9 +186,20 @@ export default function App() {
     utter.onend = () => setCoreState('idle');
     utter.onerror = () => setCoreState('idle');
 
-    window.speechSynthesis.cancel();
+   window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
-  }, [language]);
+  }, [language, voiceMuted]);
+
+  const handleToggleMute = useCallback(() => {
+    setVoiceMuted((prev) => {
+      const next = !prev;
+      if (next && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        setCoreState((s) => (s === 'speaking' ? 'idle' : s));
+      }
+      return next;
+    });
+  }, []);
 
   const sendMessage = useCallback(async (text, image) => {
     const conv = activeConversation;
@@ -378,7 +408,9 @@ export default function App() {
           dateline={now.toLocaleDateString('en-US', {
             weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
           }).toUpperCase()}
-          onMenuClick={() => setSidebarOpen((v) => !v)}
+         onMenuClick={() => setSidebarOpen((v) => !v)}
+          voiceMuted={voiceMuted}
+          onToggleMute={handleToggleMute}
         />
         <ChatPanel messages={activeConversation.messages} onClear={handleClear} lang={language} />
         <InputBar
@@ -402,6 +434,8 @@ export default function App() {
           onThemeChange={setTheme}
           language={language}
           onLanguageChange={setLanguage}
+          voiceMuted={voiceMuted}
+          onToggleMute={handleToggleMute}
           onClose={() => setSettingsOpen(false)}
           onLogout={handleLogout}
           onUserUpdate={handleUserUpdate}

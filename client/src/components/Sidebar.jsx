@@ -98,18 +98,32 @@ export default function Sidebar({
           <div className="sidebar-empty">{t(lang, 'noConversations')}</div>
         )}
         {filtered.map((c) => (
-          <button
+          <div
             key={c.id}
-            className={`sidebar-item ${c.id === activeId ? 'active' : ''}`}
-            onClick={() => onSelect(c.id)}
+            className={`sidebar-item-row ${c.id === activeId ? 'active' : ''}`}
             onContextMenu={(e) => handleContextMenu(e, c.id)}
             onTouchStart={(e) => handleTouchStart(e, c.id)}
             onTouchEnd={clearLongPress}
             onTouchMove={clearLongPress}
-            title={c.title}
           >
-            {c.title}
-          </button>
+            <button
+              className="sidebar-item"
+              onClick={() => onSelect(c.id)}
+              title={c.title}
+            >
+              {c.title}
+            </button>
+            <button
+              className="sidebar-item-delete"
+              onClick={(e) => { e.stopPropagation(); onDeleteConversation(c.id); }}
+              aria-label="Delete conversation"
+              title="Delete conversation"
+            >
+              <svg viewBox="0 0 24 24" width="13" height="13">
+                <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4zM6 9h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/>
+              </svg>
+            </button>
+          </div>
         ))}
       </div>
 

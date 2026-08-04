@@ -67,6 +67,30 @@
   flex-shrink: 0;
 }
 
+.topbar-right-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mute-btn {
+  background: none;
+  border: 1px solid var(--panel-line-strong);
+  color: var(--cyan);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s, color 0.2s;
+}
+.mute-btn:hover { border-color: var(--cyan-dim); box-shadow: 0 0 12px rgba(111,227,255,0.3); }
+.mute-btn:active { transform: scale(0.92); }
+.mute-btn.muted { color: var(--danger); border-color: rgba(255,107,107,0.3); }
+.mute-btn.muted:hover { box-shadow: 0 0 12px rgba(255,107,107,0.3);}
+
 .clock {
   font-family: var(--font-display);
   font-size: 1.1rem;
