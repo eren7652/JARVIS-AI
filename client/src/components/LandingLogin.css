@@ -60,6 +60,24 @@
   transition: opacity 0.5s ease 0.6s, transform 0.5s ease 0.6s;
 }
 
+.landing-back-btn {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--panel-line-strong);
+  color: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.landing-back-btn:hover { border-color: var(--cyan-dim); color: var(--cyan); box-shadow: 0 0 12px rgba(111,227,255,0.25); }
+
 .landing-title {
   font-family: var(--font-display);
   font-weight: 900;

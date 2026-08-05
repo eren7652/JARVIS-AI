@@ -5,6 +5,7 @@ import InputBar from './components/InputBar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import BackgroundEmblem from './components/BackgroundEmblem.jsx';
 import LandingLogin from './components/LandingLogin.jsx';
+import Hero from './components/Hero.jsx';
 import Settings from './components/Settings.jsx';
 import Orb from './components/Orb.jsx';
 import { LANGUAGES, t } from './i18n/index.js';
@@ -86,6 +87,7 @@ export default function App() {
   const [voiceMuted, setVoiceMuted] = useState(() => localStorage.getItem(VOICE_MUTED_KEY) === 'true');
   const [wakeWordEnabled, setWakeWordEnabled] = useState(() => localStorage.getItem(WAKE_WORD_KEY) === 'true');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -443,7 +445,10 @@ export default function App() {
   };
 
   if (!user) {
-    return <LandingLogin onLogin={handleLogin} />;
+    if (!showAuth) {
+      return <Hero onEnter={() => setShowAuth(true)} onLogin={() => setShowAuth(true)} />;
+    }
+    return <LandingLogin onLogin={handleLogin} onBack={() => setShowAuth(false)} />;
   }
 
   if (!activeConversation) {

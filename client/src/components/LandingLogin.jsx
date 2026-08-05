@@ -15,7 +15,7 @@ function passwordIssue(password) {
   return null;
 }
 
-export default function LandingLogin({ onLogin }) {
+export default function LandingLogin({ onLogin, onBack }) {
   const googleBtnRef = useRef(null);
   const [googleReady, setGoogleReady] = useState(false);
   const [booting, setBooting] = useState(true);
@@ -183,6 +183,11 @@ export default function LandingLogin({ onLogin }) {
       )}
 
       <div className={`landing-card ${booting ? 'landing-card-hidden' : ''}`}>
+        {onBack && (
+          <button type="button" className="landing-back-btn" onClick={onBack} aria-label="Back to home">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+          </button>
+        )}
         <Orb state="idle" size={130} />
         <h1 className="landing-title">J.A.R.V.I.S.</h1>
         <p className="landing-tagline">Just A Rather Very Intelligent System</p>
