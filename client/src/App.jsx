@@ -44,6 +44,10 @@ function getGreetingKey(hour) {
   return 'greetNight';
 }
 
+function getGreetingSpeechKey(hour) {
+  return 'greetSpeech' + getGreetingKey(hour).slice('greet'.length);
+}
+
 // Resize/compress an image before sending so requests and stored history
 // stay small — full-resolution phone photos would bloat both quickly.
 function resizeImage(file, maxDim = 900, quality = 0.72) {
@@ -105,6 +109,7 @@ export default function App() {
   const [micSupported, setMicSupported] = useState(false);
   const [micActive, setMicActive] = useState(false);
   const wakeRecognitionRef = useRef(null);
+  const hasGreetedRef = useRef(false);
   const awaitingCommandRef = useRef(false);
   const awaitingTimeoutRef = useRef(null);
   const activeConversation = useMemo(
@@ -199,6 +204,23 @@ export default function App() {
    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
   }, [language, voiceMuted]);
+
+  // JARVIS greets first, unprompted, the moment the chat becomes ready —
+  // once per browser session, regardless of whether it's a new or a
+  // previously-existing conversation that ends up active.
+  useEffect(() => {
+    if (!activeConversation || hasGreetedRef.current) return;
+    hasGreetedRef.current = true;
+
+    const hour = new Date().getHours();
+    const greetingText = t(language, getGreetingSpeechKey(hour));
+    const greetMsg = { id: uid(), role: 'jarvis', text: greetingText, ts: timeLabel() };
+
+    setConversations((prev) => prev.map((c) => (
+      c.id === activeConversation.id ? { ...c, messages: [...c.messages, greetMsg] } : c
+    )));
+    speak(greetingText);
+  }, [activeConversation, language, speak]);
 
   const handleToggleMute = useCallback(() => {
     setVoiceMuted((prev) => {
