@@ -35,14 +35,18 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'message or image is required' });
     }
 
-    const geminiHistory = history
-      .filter((m) => m.role === 'user' || m.role === 'jarvis')
-      .slice(-20)
-      .map((m) => ({
-        role: m.role === 'jarvis' ? 'model' : 'user',
-        parts: [{ text: m.text || '' }],
-      }));
+    let geminiHistory = history
+  .filter((m) => m.role === 'user' || m.role === 'jarvis')
+  .slice(-20)
+  .map((m) => ({
+    role: m.role === 'jarvis' ? 'model' : 'user',
+    parts: [{ text: m.text || '' }],
+  }));
 
+// Gemini requires the first history message to be from the user
+while (geminiHistory.length && geminiHistory[0].role !== 'user') {
+  geminiHistory.shift();
+}
     const model = getModel(language);
     const chat = model.startChat({ history: geminiHistory, generationConfig: { maxOutputTokens: 500 } });
 

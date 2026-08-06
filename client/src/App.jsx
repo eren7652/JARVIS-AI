@@ -156,7 +156,7 @@ export default function App() {
         if (list.length === 0) {
           const created = await apiFetch('/api/conversations', { method: 'POST' });
           const fresh = normalizeConversation(created);
-          fresh.messages = [{ id: uid(), role: 'system', text: t(language, 'initMessage') }];
+          fresh.messages = [];
           setConversations([fresh]);
           setActiveId(fresh.id);
         } else {
@@ -216,9 +216,7 @@ export default function App() {
     const greetingText = t(language, getGreetingSpeechKey(hour));
     const greetMsg = { id: uid(), role: 'jarvis', text: greetingText, ts: timeLabel() };
 
-    setConversations((prev) => prev.map((c) => (
-      c.id === activeConversation.id ? { ...c, messages: [...c.messages, greetMsg] } : c
-    )));
+    
     speak(greetingText);
   }, [activeConversation, language, speak]);
 
@@ -404,7 +402,7 @@ export default function App() {
   const handleClear = () => {
     const conv = activeConversation;
     if (!conv) return;
-    const clearedMessages = [{ id: uid(), role: 'system', text: t(language, 'historyCleared') }];
+    const clearedMessages = [];
     setConversations((prev) => prev.map((c) => (c.id === conv.id ? { ...c, messages: clearedMessages } : c)));
     apiFetch(`/api/conversations/${conv.id}`, {
       method: 'PUT',
@@ -416,7 +414,7 @@ export default function App() {
     try {
       const created = await apiFetch('/api/conversations', { method: 'POST' });
       const fresh = normalizeConversation(created);
-      fresh.messages = [{ id: uid(), role: 'system', text: t(language, 'initMessage') }];
+      fresh.messages = [];
       setConversations((prev) => [fresh, ...prev]);
       setActiveId(fresh.id);
       if (window.innerWidth <= 860) setSidebarOpen(false);
