@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: settings-overlay-in 0.2s ease;
 }
 
 .settings-panel {
@@ -19,6 +20,17 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: settings-panel-in 0.32s cubic-bezier(.19,1,.22,1) both;
+}
+
+@keyframes settings-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes settings-panel-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .settings-header {

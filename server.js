@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const conversationRoutes = require('./routes/conversations');
+const imageRoutes = require('./routes/image');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/image', imageRoutes);
 
 app.listen(PORT, () => {
   console.log(`JARVIS server online at http://localhost:${PORT}`);

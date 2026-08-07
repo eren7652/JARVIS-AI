@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import Orb from './Orb.jsx';
 import LandingBackground from './LandingBackground.jsx';
 import { apiFetch, setToken } from '../api.js';
-import { playBootSound } from '../bootSound.js';
 import './LandingLogin.css';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,7 +17,6 @@ function passwordIssue(password) {
 export default function LandingLogin({ onLogin, onBack }) {
   const googleBtnRef = useRef(null);
   const [googleReady, setGoogleReady] = useState(false);
-  const [booting, setBooting] = useState(true);
 
   // 'select' (default: Google + Create account) | 'login' | 'signup' | 'phone-number' | 'phone-otp'
   const [view, setView] = useState('select');
@@ -34,12 +32,6 @@ export default function LandingLogin({ onLogin, onBack }) {
 
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    playBootSound();
-    const timer = setTimeout(() => setBooting(false), 1300);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -175,14 +167,7 @@ export default function LandingLogin({ onLogin, onBack }) {
     <div className="landing">
       <LandingBackground />
 
-      {booting && (
-        <>
-          <div className="suit-door suit-door-left" />
-          <div className="suit-door suit-door-right" />
-        </>
-      )}
-
-      <div className={`landing-card ${booting ? 'landing-card-hidden' : ''}`}>
+      <div className="landing-card">
         {onBack && (
           <button type="button" className="landing-back-btn" onClick={onBack} aria-label="Back to home">
             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>

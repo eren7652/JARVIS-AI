@@ -57,7 +57,7 @@
   box-shadow: 0 0 0 3px rgba(111,227,255,0.12);
 }
 
-.mic-btn, .send-btn, .attach-btn {
+.mic-btn, .send-btn, .attach-btn, .generate-btn {
   border: 1px solid var(--panel-line-strong);
   background: var(--panel-solid);
   color: var(--cyan);
@@ -65,7 +65,7 @@
   transition: border-color 0.2s, color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.mic-btn, .attach-btn {
+.mic-btn, .attach-btn, .generate-btn {
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -74,7 +74,16 @@
   justify-content: center;
   flex-shrink: 0;
 }
-.mic-btn:hover:not(:disabled), .attach-btn:hover { border-color: var(--cyan); box-shadow: 0 0 14px rgba(111,227,255,0.3); }
+.mic-btn:hover:not(:disabled), .attach-btn:hover, .generate-btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px rgba(111,227,255,0.3);
+}
+.generate-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.generate-spin { animation: generate-spin-anim 0.9s linear infinite; }
+@keyframes generate-spin-anim {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .mic-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .mic-btn.active {
   color: var(--bg);

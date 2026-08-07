@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import Orb from './Orb.jsx';
 import LandingBackground from './LandingBackground.jsx';
+import { playBootSound } from '../bootSound.js';
 import './Hero.css';
 
 const FEATURES = [
@@ -36,10 +38,26 @@ const FEATURES = [
 const STACK = ['React', 'Node.js', 'Express', 'MongoDB', 'Gemini API', 'Web Speech API'];
 
 export default function Hero({ onEnter, onLogin }) {
+  const [booting, setBooting] = useState(true);
+
+  useEffect(() => {
+    playBootSound();
+    const timer = setTimeout(() => setBooting(false), 1300);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="hero-page">
       <LandingBackground />
 
+      {booting && (
+        <>
+          <div className="suit-door suit-door-left" />
+          <div className="suit-door suit-door-right" />
+        </>
+      )}
+
+      <div className={`hero-content ${booting ? 'hero-content-hidden' : ''}`}>
       <nav className="hero-nav">
         <div className="hero-nav-brand">
           <Orb state="idle" size={34} />
@@ -91,6 +109,7 @@ export default function Hero({ onEnter, onLogin }) {
       <footer className="hero-footer">
         <span>© {new Date().getFullYear()} J.A.R.V.I.S.</span>
       </footer>
+      </div>
     </div>
   );
 }

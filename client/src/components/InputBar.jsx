@@ -4,7 +4,7 @@ import './InputBar.css';
 
 export default function InputBar({
   value, onChange, onSubmit, onMicClick, micActive, micSupported, lang,
-  imagePreview, onImageSelect, onImageRemove,
+  imagePreview, onImageSelect, onImageRemove, onGenerateImage, imageGenBusy,
 }) {
   const fileInputRef = useRef(null);
 
@@ -40,6 +40,24 @@ export default function InputBar({
             e.target.value = '';
           }}
         />
+
+        <button
+          type="button"
+          className="generate-btn"
+          onClick={() => onGenerateImage(value)}
+          disabled={!value.trim() || imageGenBusy}
+          title="Generate an image from this prompt"
+        >
+          {imageGenBusy ? (
+            <svg viewBox="0 0 24 24" width="18" height="18" className="generate-spin">
+              <path fill="currentColor" d="M12 4a8 8 0 0 1 8 8h-2a6 6 0 0 0-6-6z"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path fill="currentColor" d="M9.5 3l1.2 3.3L14 7.5l-3.3 1.2L9.5 12l-1.2-3.3L5 7.5l3.3-1.2zM18.5 12l.9 2.6L22 15.5l-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9zM9.5 13l1.1 3 3 1.1-3 1.1-1.1 3-1.1-3-3-1.1 3-1.1z"/>
+            </svg>
+          )}
+        </button>
 
         <button
           type="button"

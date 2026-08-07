@@ -102,6 +102,7 @@ export default function App() {
 
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageGenBusy, setImageGenBusy] = useState(false);
   const [coreState, setCoreState] = useState('idle');
   const [now, setNow] = useState(new Date());
 
@@ -380,12 +381,51 @@ export default function App() {
     }
   };
 
-  const handleImageSelect = async (file) => {
+ const handleImageSelect = async (file) => {
     try {
       const dataUrl = await resizeImage(file);
       setImagePreview(dataUrl);
     } catch (err) {
       console.error('Failed to process image:', err);
+    }
+  };
+
+  const handleGenerateImage = async (promptValue) => {
+    const prompt = (promptValue || '').trim();
+    const conv = activeConversation;
+    if (!prompt || !conv || imageGenBusy) return;
+
+    setInput('');
+    setImageGenBusy(true);
+
+    const userMsg = { id: uid(), role: 'user', text: prompt, ts: timeLabel() };
+    let updatedMessages = [...conv.messages, userMsg];
+    setConversations((prev) => prev.map((c) => (c.id === conv.id ? { ...c, messages: updatedMessages } : c)));
+    setCoreState('thinking');
+
+    try {
+      const data = await apiFetch('/api/image', {
+        method: 'POST',
+        body: JSON.stringify({ prompt }),
+      });
+
+      const jarvisMsg = { id: uid(), role: 'jarvis', text: 'Here you go, sir.', image: data.image, ts: timeLabel() };
+      updatedMessages = [...updatedMessages, jarvisMsg];
+      setConversations((prev) => prev.map((c) => (c.id === conv.id ? { ...c, messages: updatedMessages } : c)));
+      setCoreState('idle');
+
+      apiFetch(`/api/conversations/${conv.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ messages: updatedMessages }),
+      }).catch(() => {});
+    } catch (err) {
+      const errMsg = { id: uid(), role: 'error', text: 'Image generation failed: ' + err.message, ts: timeLabel() };
+      updatedMessages = [...updatedMessages, errMsg];
+      setConversations((prev) => prev.map((c) => (c.id === conv.id ? { ...c, messages: updatedMessages } : c)));
+      setCoreState('error');
+      setTimeout(() => setCoreState('idle'), 2000);
+    } finally {
+      setImageGenBusy(false);
     }
   };
 
@@ -466,14 +506,22 @@ export default function App() {
 
   if (!user) {
     if (!showAuth) {
-      return <Hero onEnter={() => setShowAuth(true)} onLogin={() => setShowAuth(true)} />;
+      return (
+        <div key="screen-hero" className="screen-transition">
+          <Hero onEnter={() => setShowAuth(true)} onLogin={() => setShowAuth(true)} />
+        </div>
+      );
     }
-    return <LandingLogin onLogin={handleLogin} onBack={() => setShowAuth(false)} />;
+    return (
+      <div key="screen-login" className="screen-transition">
+        <LandingLogin onLogin={handleLogin} onBack={() => setShowAuth(false)} />
+      </div>
+    );
   }
 
   if (!activeConversation) {
     return (
-      <div className="app-loading">
+      <div key="screen-loading" className="app-loading screen-transition">
         <Orb state="thinking" size={70} />
       </div>
     );
@@ -487,7 +535,7 @@ export default function App() {
     wakeWordEnabled ? 'statusWakeReady' : 'statusNominal';
 
   return (
-    <div className="app-root">
+    <div key="screen-chat" className="app-root screen-transition">
       <BackgroundEmblem />
       {sidebarOpen && <div className="sidebar-scrim" onClick={() => setSidebarOpen(false)} />}
       <Sidebar
@@ -529,6 +577,8 @@ export default function App() {
           imagePreview={imagePreview}
           onImageSelect={handleImageSelect}
           onImageRemove={() => setImagePreview(null)}
+          onGenerateImage={handleGenerateImage}
+          imageGenBusy={imageGenBusy}
         />
       </div>
 
